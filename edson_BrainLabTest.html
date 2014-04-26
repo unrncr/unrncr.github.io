@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<!--import jQuery functionallity (draggable)-->
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+<link rel="stylesheet" href="/resources/demos/style.css" />
+
+<!--import high charts-->
+<!-- This is already imported above!
+help from: http://stackoverflow.com/questions/17364172/highcharts-error-16-charts-not-showing-on-the-same-page
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+-->
+<script src="http://code.highcharts.com/highcharts.js"></script>
+
+<style>
+#draggable { width: 420px; height: 420px; padding: 0.5em; }
+#resizable { width: 420px; height: 420px; padding: 0.5em; }
+#resizable h3 { text-align: center; margin: 0; }
+</style>
+
+
+<script>
+$(function() {
+$( "#container" ).draggable();
+$( "#container2" ).draggable();
+<!--$( "#container" ).resizable();-->
+});
+</script>
+
+
+</head>
+<body>
+
+<h1>JavaScript</h1>
+<form>
+<select name="users" onchange="display(this.value)">
+<option value="">Select language:</option>
+<option value="English">English</option>
+<option value="Spanish">Spanish</option>
+<option value="French">French</option>
+<option value="Arabic">Arabic</option>
+</select>
+</form>
+
+<button type="button" onclick="repeat()">Generate</button>
+<button type="button" onclick="chart()">Graph</button>
+<button id="stop">Stop</button>
+<button id="resume">Resume</button>
+
+<div id="container" style="width:100%; height:400px;"></div>
+<div id="container2" style="width:100%; height:400px;"></div>
+<div id="numbers">Random numbers will generate here...</div>
+<div id="debug">Filler</div>
+<div id="debug2">Filler</div>
+<div id="txtHint">txt</div>
+
+
+<script>
+
+var x = 0; // input value for generator
+var y = 0; // input value for highcharts
+var y_2 = 0;
+var z = 0; // used for posting info (in this case, array length)
+var t = 0; // time
+var k = 0; // input for sin(k)
+var dev_1 = 0;
+var dev_2 = 0;
+var dev_3 = 0;
+var interval_1;
+var interval_2;
+var interval_3;
+var temp;
+var temp2;
+var array = new Array();
+var dev_array = new Array();
+
+function repeat()
+{
+interval_1 = setInterval(function(){generate()},500);
+}
+
+function generate()
+{
+temp = Math.random();
+x=Math.sin(k)*10+Math.floor(temp+.5);
+if (y == 0 || y == 1)
+	{
+	array.push(x);
+	if (array.length > 15)
+		y = 1;
+	}
+if (y == 1)
+	array.shift();
+	
+z = array.length;
+t++;
+k += (3.141592/10);
+if (k > 6.28)
+	k = 0;
+
+if (temp < .333) {
+	dev_array.push(1);
+	dev_1 ++;
+	}
+else if (temp >= .333 && temp < .666) {
+	dev_array.push(2);
+	dev_2 ++;
+	}
+else {
+	dev_array.push(3);
+	dev_3 ++;
+	}
+	
+if (dev_array.length > 20) {
+	y_2 = 1;
+	}
+	
+if (y_2 == 1) {
+	temp2=dev_array.shift();
+	if (temp2 == 1) {
+		dev_1--;
+	}
+	else if (temp2 == 2) {
+		dev_2--;
+	}
+	else if (temp2 == 3) {
+		dev_3--;
+	}
+}
+
+
+	
+document.getElementById("debug").innerHTML = dev_array.length + ' ' + dev_1 + ' ' + dev_2 + ' ' + dev_3;
+document.getElementById("numbers").innerHTML = JSON.stringify(dev_array);
+
+}
+
+function chart()
+{
+$(function () {
+	var c_series;
+    $('#container').highcharts({
+        chart: {
+            type: 'spline',
+			height: 400,
+			width: 400,
+            animation: Highcharts.svg,
+			marginRight: 10,
+            events: {
+                load: function() {
+                    var series = this.series[0];
+					c_series = series;
+                    interval_2 = setInterval(function(){
+                        //y = Math.random()*10;
+						y = x;
+						if (series.data.length < 20)
+							series.addPoint(y, true, false);
+						else
+							series.addPoint(y, true, true);
+                    },500)
+                }
+            }
+        },
+		plotOptions: {
+			series: {
+				animation: false
+			},
+		},
+        title: {
+            text: 'Fruit Consumption'
+        },
+        xAxis: {
+            categories: ['Apples', 'Bananas', 'Oranges']
+        },
+        yAxis: {
+			max: 15,
+			min: -15,
+            title: {
+                text: 'Fruit eaten'
+            }
+        },
+        series: [{
+            name: 'Jane',
+            data: [10, 0, 4]
+			//data: array
+        }]
+    });
+	$('#stop').click(function() {
+		clearInterval(interval_2);
+	});
+	$('#resume').click(function() {
+		series = c_series;
+        interval_2 = setInterval(function(){
+        //y = Math.random()*10;
+			y = x;
+			if (series.data.length < 20)
+				series.addPoint(y, true, false);
+			else
+				series.addPoint(y, true, true);
+        },500)
+	});
+	    $('#container2').highcharts({
+        chart: {
+            type: 'pie',
+			height: 400,
+			width: 400,
+            animation: Highcharts.svg,
+			marginRight: 10,
+			events: {
+                load: function() {
+                    var series = this.series[0];
+                    interval_3 = setInterval(function(){
+					series.data[0].update(dev_1, false, false);
+					series.data[1].update(dev_2, false, false);
+					series.data[2].update(dev_3, true, true);
+                    },500)
+                }
+            }
+        },
+		plotOptions: {
+			series: {
+				animation: false
+			},
+		},
+        title: {
+            text: 'Fruit Consumption'
+        },
+        xAxis: {
+            categories: ['Apples', 'Bananas', 'Oranges']
+        },
+        yAxis: {
+			max: 15,
+			min: -15,
+            title: {
+                text: 'Fruit eaten'
+            }
+        },
+        series: [{
+            name: 'Jane',
+            data: [dev_1, dev_2, dev_3]
+			//data: array
+        }]
+    });
+	/*
+		$('#container2').highcharts({
+            chart: {
+                type: 'pie'
+            },
+            title: {
+                text: 'Browser market share, April, 2011'
+            },
+            yAxis: {
+                title: {
+                    text: 'Total percent market share'
+                }
+            },
+            plotOptions: {
+                pie: {
+                    shadow: false,
+                    center: ['50%', '50%']
+                }
+            },
+            tooltip: {
+        	    valueSuffix: '%'
+            },
+            series: [{
+                name: 'Browsers',
+                data: [dev_0, dev_1, dev_2],
+                size: '60%',
+                dataLabels: {
+                    formatter: function() {
+                        return this.y > 5 ? this.point.name : null;
+                    },
+                    color: 'white',
+                    distance: -30
+                }
+            }]
+        });
+		*/
+});}
+
+
+function display(str)
+{
+if (window.XMLHttpRequest)
+  {// code for IE7+, Firefox, Chrome, Opera, Safari
+  xmlhttp=new XMLHttpRequest();
+  }
+else
+  {// code for IE6, IE5
+  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  }
+xmlhttp.onreadystatechange=function()
+  {
+  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+    {
+    document.getElementById("txtHint").innerHTML=xmlhttp.responseText;
+    }
+  }
+xmlhttp.open("GET","phpfile2.php?q="+str,true);
+xmlhttp.send();
+
+}
+</script>
+
+</body>
+</html> 

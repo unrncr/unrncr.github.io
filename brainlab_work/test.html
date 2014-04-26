@@ -1,0 +1,274 @@
+
+<!--
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * -->
+
+<html>
+	<head>
+		<title>Interactive Line Graph</title>
+		<script src="http://d3js.org/d3.v2.js"></script>
+		<!-- 
+			using JQuery for element dimensions
+			This is a small aspect of this example so it can be removed fairly easily if needed.
+		-->
+		<script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+		<script src="./Interactive Line Graph_files/sample_data.js"></script>
+		<script src="./Interactive Line Graph_files/line-graph.js"></script>
+		<link rel="stylesheet" href="./Interactive Line Graph_files/style.css" type="text/css">
+
+	</head>
+	<body>
+	<div id="graph1" class="aGraph" style="position:relative;width:100%;height:400px">
+	<style scoped>
+			body {
+				font-family: "Helvetica Neue", Helvetica;
+			}
+					
+			p {
+				clear:both;
+				top: 20px;
+			}		
+					
+			div.aGraph {
+				margin-bottom: 30px;
+			}
+		</style></div>
+	<div id="graph2" class="aGraph" style="visibility:hidden"></div>
+	<div id="graph3" class="aGraph" style="visibility:hidden"></div>
+	<div id="cubism"></div>
+	<div id="example1"></div>
+
+	<script>
+		/* 
+		 * If running inside bl.ocks.org we want to resize the iframe to fit both graphs
+		 */
+		 if(parent.document.getElementsByTagName("iframe")[0]) {
+			 parent.document.getElementsByTagName("iframe")[0].setAttribute('style', 'height: 650px !important');
+		 }
+	
+		 /*
+		 * Note how the 'data' object is added to here before rendering to provide decoration information.
+		 * <p>
+		 * This is purposefully done here instead of in data.js as an example of how data would come from a server
+		 * and then have presentation information injected into it (rather than as separate arguments in another object)
+		 * and passed into LineGraph.
+		 *
+		 * Also, CSS can be used to style colors etc, but this is also doable via the 'data' object so that the styling
+		 * of different data points can be done in code which is often more natural for display names, legends, line colors etc
+		 */
+		 // add presentation logic for 'data' object using optional data arguments
+		 data["displayNames"] = ["2xx","3xx","4xx","5xx"];
+		 data["colors"] = ["green","orange","red","darkred"];
+		 data["scale"] = "pow";
+		 
+		 // add presentation logic for 'data' object using optional data arguments
+		 data2["displayNames"] = ["2xx","3xx","4xx","5xx"];
+		 data2["colors"] = ["green","orange","red","darkred"];
+		 data2["scale"] = "linear";
+		 
+		 // add presentation logic for 'data' object using optional data arguments
+		 data3["displayNames"] = ["Data1", "Data2"];
+		 data3["axis"] = ["left", "right"];
+		 data3["colors"] = ["#2863bc","#c8801c"];
+		 data3["rounding"] = [2, 0];
+
+		 // create graph now that we've added presentation config
+		var l1 = new LineGraph({containerId: 'graph1', data: data});
+		var l2 = new LineGraph({containerId: 'graph2', data: data2});
+		var l3 = new LineGraph({containerId: 'graph3', data: data3});
+		
+	setInterval(function() {
+		/*
+		* The following will simulate live updating of the data (see dataA, dataB, dataC etc in data.js which are real examples)
+		* This is being simulated so this example functions standalone without a backend server which generates data such as data.js contains.
+		*/
+		// for each data series ...
+		var newData = [];
+		data.values.forEach(function(dataSeries, index) {
+			// take the first value and move it to the end
+			// and capture the value we're moving so we can send it to the graph as an update
+			var v = dataSeries.shift();
+			dataSeries.push(v);
+			// put this value in newData as an array with 1 value
+			newData[index] = [v];
+		})
+		
+		// we will reuse dataA each time
+		dataA.values = newData;
+		// increment time 1 step
+		dataA.start = dataA.start + dataA.step;
+		dataA.end = dataA.end + dataA.step; 
+					
+		l1.slideData(dataA);
+	}, 50);
+
+		
+	</script>
+	
+<style scoped>
+
+body {
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
+  margin: 30px auto;
+  width: 1440px;
+  position: relative;
+}
+
+header {
+  padding: 6px 0;
+}
+
+.group {
+  margin-bottom: 1em;
+}
+
+.axis {
+  font: 10px sans-serif;
+  position: fixed;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.axis text {
+  -webkit-transition: fill-opacity 250ms linear;
+}
+
+.axis path {
+  display: none;
+}
+
+.axis line {
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.axis.top {
+  background-image: linear-gradient(top, #fff 0%, rgba(255,255,255,0) 100%);
+  background-image: -o-linear-gradient(top, #fff 0%, rgba(255,255,255,0) 100%);
+  background-image: -moz-linear-gradient(top, #fff 0%, rgba(255,255,255,0) 100%);
+  background-image: -webkit-linear-gradient(top, #fff 0%, rgba(255,255,255,0) 100%);
+  background-image: -ms-linear-gradient(top, #fff 0%, rgba(255,255,255,0) 100%);
+  top: 0px;
+  padding: 0 0 24px 0;
+}
+
+.axis.bottom {
+  background-image: linear-gradient(bottom, #fff 0%, rgba(255,255,255,0) 100%);
+  background-image: -o-linear-gradient(bottom, #fff 0%, rgba(255,255,255,0) 100%);
+  background-image: -moz-linear-gradient(bottom, #fff 0%, rgba(255,255,255,0) 100%);
+  background-image: -webkit-linear-gradient(bottom, #fff 0%, rgba(255,255,255,0) 100%);
+  background-image: -ms-linear-gradient(bottom, #fff 0%, rgba(255,255,255,0) 100%);
+  bottom: 0px;
+  padding: 24px 0 0 0;
+}
+
+.horizon {
+  border-bottom: solid 1px #000;
+  overflow: hidden;
+  position: relative;
+}
+
+.horizon {
+  border-top: solid 1px #000;
+  border-bottom: solid 1px #000;
+}
+
+.horizon + .horizon {
+  border-top: none;
+}
+
+.horizon canvas {
+  display: block;
+}
+
+.horizon .title,
+.horizon .value {
+  bottom: 0;
+  line-height: 30px;
+  margin: 0 6px;
+  position: absolute;
+  text-shadow: 0 1px 0 rgba(255,255,255,.5);
+  white-space: nowrap;
+}
+
+.horizon .title {
+  left: 0;
+}
+
+.horizon .value {
+  right: 0;
+}
+
+.line {
+  background: #000;
+  z-index: 2;
+}
+
+@media all and (max-width: 1439px) {
+  body { margin: 0px auto; }
+  .axis { position: static; }
+  .axis.top, .axis.bottom { padding: 0; }
+}
+
+
+</style>
+
+<script src="./Cubism.js Demo_files/d3.v2.js"></script>
+<script src="./Cubism.js Demo_files/cubism.v1.js"></script>
+<script>
+
+var context = cubism.context()
+    .step(1e3)
+    .size(1440);
+
+d3.select("body").selectAll(".axis")
+    .data(["top", "bottom"])
+  .enter().append("div")
+    .attr("class", function(d) { return d + " axis"; })
+    .each(function(d) { d3.select(this).call(context.axis().ticks(12).orient(d)); });
+
+d3.select("body").append("div")
+    .attr("class", "rule")
+    .call(context.rule());
+
+d3.select("body").selectAll(".horizon")
+    .data(d3.range(1, 50).map(random))
+  .enter().insert("div", ".bottom")
+    .attr("class", "horizon")
+    .call(context.horizon().extent([-10, 10]));
+
+context.on("focus", function(i) {
+	d3.selectAll(".value").style("right", i == null ? null : context.size() - i + "px");
+	});
+
+// Replace this with context.graphite and graphite.metric!
+function random(x) {
+  var value = 0,
+      values = [],
+      i = 0,
+      last;
+  return context.metric(function(start, stop, step, callback) {
+    start = +start, stop = +stop;
+    if (isNaN(last)) last = start;
+    while (last < stop) {
+      last += step;
+      value = Math.max(-10, Math.min(10, value + .8 * Math.random() - .4 + .2 * Math.cos(i += x * .02)));
+      values.push(value);
+    }
+    callback(null, values = values.slice((start - stop) / step));
+  }, x);
+}
+
+
+</script>
+</html>

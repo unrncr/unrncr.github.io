@@ -1,0 +1,321 @@
+
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+<!--<link rel="stylesheet" href="/resources/demos/style.css" />-->
+
+<!--
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+-->
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script src="http://code.highcharts.com/modules/exporting.js"></script>
+
+<script src="http://d3js.org/d3.v2.js"></script>
+<!-- 
+	using JQuery for element dimensions
+	This is a small aspect of this example so it can be removed fairly easily if needed.
+
+<script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+-->
+<script src="sample_data.js"></script>
+<script src="line-graph.js"></script>
+<link rel="stylesheet" href="style.css" type="text/css">
+	<style>
+		body {
+			font-family: "Helvetica Neue", Helvetica;
+		}
+				
+		p {
+			clear:both;
+			top: 20px;
+		}		
+				
+		div.aGraph {
+			margin-bottom: 30px;
+		}
+	</style>
+
+<button type="button" onclick="createPlot()">Generate Plot</button>
+<button type="button" onclick="createGraph()">Generate Graph</button>
+<div id="testDom1" class="aGraph" style="position:relative;width:50%;height:200px"></div>
+<div id="testDom2" class="aGraph" style="position:relative;width:50%;height:200px"></div>
+<div id="testDom3" class="aGraph" style="position:relative;width:50%;height:200px"></div>
+<div id="testDom4" class="aGraph" style="position:relative;width:50%;height:200px"></div>
+<div id="testDom5" class="aGraph" style="position:relative;width:50%;height:200px"></div>
+<p>demo</p>
+
+<!--
+<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+-->
+
+
+
+
+<script>
+
+
+var array_doms = new Array();
+var domID = 0;
+
+var array_graphs = new Array();
+var array_data = new Array();
+
+function createDom(type) {
+	domID++;
+	
+	var div = document.createElement('div');
+	div.id = "graph"+domID;
+	div.class = "aGraph";
+	//div.style.position: "absolute";
+	//div.style.top = "50px";
+	//div.style.left = "50px";
+	//div.style.border = "solid #000000";
+	/*
+	if (type == "line")
+	{
+		div.style.position = "relative";
+		div.style.width = "100%";
+		div.style.height = "400px";
+	}
+	else if (type == "plot")
+	{
+		div.style.width = "50%";
+		div.style.height = "400px";
+	}
+	*/
+	//div.innerHTML = div.id;
+	
+	document.body.appendChild(div);
+	
+	//array_doms.push("graph"+domID);
+	//document.getElementById("numbers").innerHTML = txt;
+	//document.getElementById("array").innerHTML = JSON.stringify(array_doms);
+	
+	//$('#graph'+domID).draggable();
+	
+	return div.id;
+}
+
+
+
+/*
+function change() {
+	document.getElementById("numbers").innerHtml = "test";
+}
+*/
+
+function createGraph() {
+	domID++;
+	
+	data["scale"] = "linear";
+	//var name = createDom("line");
+	var div = document.createElement('div');
+	div.id = "graph"+domID;
+	div.class = "aGraph";
+	
+	$('#testDom'+domID).draggable();
+	
+	document.body.appendChild(div);
+
+	var data_ = data;
+	
+	array_data[domID] = data;
+	var data_ = array_data[domID];
+	
+	data_['values'] = [data_['values'][5],data_['values'][6]];
+	data_['names'] = [data_['names'][5],data_['names'][6]];
+	data_['colors'] = ["red","blue"];
+	
+	/*
+	data_['values'] = [data_['values'][5],data_['values'][6],data_['values'][8],data_['values'][9]];
+	data_['names'] = [data_['names'][5],data_['names'][6],data_['values'][8],data_['values'][9]];
+	data_['colors'] = ["red","blue","darkred","green"]
+	*/
+	//data_.names = data_.names[0];
+	
+	//var l1 = new LineGraph({containerId: string(div.id), data: data});
+	var l1 = new LineGraph({containerId: "testDom"+domID, data: data_});
+	
+	array_graphs[domID]=l1;
+	
+	//var l2 = new LineGraph({containerId: "testDom", data: data});
+	setInterval(function() {
+		/*
+		* The following will simulate live updating of the data (see dataA, dataB, dataC etc in data.js which are real examples)
+		* This is being simulated so this example functions standalone without a backend server which generates data such as data.js contains.
+		*/
+		// for each data series ...
+		var newData = [];
+		
+		data.values.forEach(function(dataSeries, index) {
+			// take the first value and move it to the end
+			// and capture the value we're moving so we can send it to the graph as an update
+			var v = dataSeries.shift();
+			dataSeries.push(v);
+			// put this value in newData as an array with 1 value
+			newData[index] = [v];
+		})
+		
+		
+		
+		// we will reuse dataA each time
+		dataA.values = newData;
+		// increment time 1 step
+		dataA.start = dataA.start + dataA.step;
+		dataA.end = dataA.end + dataA.step; 
+					
+		l1.slideData(dataA);
+		//l2.slideData(dataA);
+	}, 100);
+}
+
+function createPlot() {
+	
+	var name = createDom("plot");
+	//document.getElementById("numbers").close();
+	
+	$('#'+name).highcharts({
+//	$('#container').highcharts({
+		chart: {
+			type: 'scatter',
+			//className: highChart,
+			height: 400,
+			//width: 400,
+			//zoomType: 'xy',
+			animation: false,
+			events: {
+				load: function() {
+					var series = this.series[0];
+					var series2 = this.series[1];
+					x=0;
+					interval_2 = setInterval(function(){
+						//y = Math.random()*10;
+						var factor = 0;
+						var offset;
+						
+						y = 100;
+						//x++;
+						
+						x=(new Date()).getTime();
+						var old_x=x;
+						
+						phase = .05;
+						numPoints = Math.random()*10
+						factor = Math.cos((x*phase)*2*3.1415)+
+								Math.cos(2*(x*phase)*2*3.1415);
+						numPoints*= factor*5;
+						
+						if (series2.data.length < 300)
+							series2.addPoint([x,490], false, false, false);
+						else
+							series2.addPoint([x,490], false, true, false);
+						
+						for (var i=0; i<numPoints; i++) {
+
+							offset = Math.random();
+							x=old_x+(offset*10);
+							y = offset*500;
+							
+							if (series.data.length < 300)
+								series.addPoint([x,y], false, false, false);
+							else
+								series.addPoint([x,y], false, true, false);
+						}
+						
+						//series[1].name=x;
+						
+						
+						series.xAxis.setExtremes(old_x-7500, old_x, true, false);
+						
+					},200)
+				},
+				click: function(event) {
+					//alert(name);
+					alert(this.chart.container.id);
+					//$(this).css( 'z-index','1000');
+				}
+			}
+		},
+		title: {
+			text: 'Plot test'
+		},
+		subtitle: {
+			text: '---subtitle---'
+		},
+		xAxis: {
+			min: (new Date()).getTime(),
+			max: (new Date()).getTime()+36000,
+			type: 'datetime',
+			title: {
+				enabled: true,
+				text: 'Time'
+			},
+			/*
+			min: 0,
+			max: 100,
+			*/
+			/*
+			startOnTick: true,
+			endOnTick: true,
+			showLastLabel: true
+			*/
+		},
+		yAxis: {
+			title: {
+				text: 'Neuron'
+			},
+			max: 500,
+			min: 0
+		},
+		legend: {
+			layout: 'vertical',
+			align: 'left',
+			verticalAlign: 'top',
+			x: 100,
+			y: 70,
+			floating: true,
+			backgroundColor: '#FFFFFF',
+			borderWidth: 1
+		},
+		plotOptions: {
+			scatter: {
+				marker: {
+					radius: 2,/*
+					states: {
+						hover: {
+							enabled: true,
+							lineColor: 'rgb(100,100,100)'
+						}
+					}*/
+				},
+			enableMouseTracking: false
+			/*
+				states: {
+					hover: {
+						marker: {
+							enabled: false
+						}
+					}
+				},*/
+				/*
+				tooltip: {
+					headerFormat: '<b>{series.name}</b><br>',
+					pointFormat: '{point.x} cm, {point.y} kg'
+				}*/
+			}
+		},
+		series: [{
+			name: 'Neuron',
+			color: 'rgba(223, 83, 83, .5)',
+			data: []
+
+		}, {
+			name: '---',
+			color: 'rgba(119, 152, 191, .5)',
+			data: []
+		}],
+		enableMouseTracking: false,
+	});
+}
+    
+</script>

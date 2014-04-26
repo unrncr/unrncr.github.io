@@ -1,0 +1,29 @@
+<div class="navbar">
+	<div class="navbar-inner">
+		<div class="container-fluid">
+			<!-- Be sure to leave the brand out there if you want it shown -->
+			<ul class="nav">
+				<li class="brand">Brain Lab</li>
+				<li id="IndexNav"><a href="index.php">Home</a></li>
+				<li id="ModelsNav"><a href="models.php">Models</a></li>
+				<li id="ReportsNav"><a href="reports.php">Reports</a></li>
+				<li id="RegisterNav"><a href="register.php">Register</a></li>
+				<li><input id="UsernameInput" type="text" class="span2" onkeyup="AllowLogin()" placeholder="Username..." onkeypress="checkLoginEnter(event)"></li>
+				<li><input id="PasswordInput" type="password" class="span2" onkeyup="AllowLogin()" placeholder="Password..." onkeypress="checkLoginEnter(event)"></li>
+				<li><button id="LoginButton" class="btn btn-small btn-primary disabled" type="button" onclick="LoginUser()">Login</button></li>
+				<li id="ForgotNav" class="dropdown"><a class="dropdown-toggle"
+										data-toggle="dropdown"
+										href="#">
+										Forgot?
+										<b class="caret"></b>
+									</a>
+					<ul class="dropdown-menu">
+						<li><a href="recoverusername.php">Forgot Username</a></li>
+						<li><a href="recoverpassword.php">Forgot Password</a></li>
+						<li><a href="#">Forgot Activation</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div>
+</div>
